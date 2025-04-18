@@ -1,9 +1,11 @@
+
+import { Assistant as Gemini } from './assistants/googleai'
+import { Assistant as OpenAi } from './assistants/openai'
+import { Loader } from './components/Loader/Loader'
 import { useRef, useState } from 'react'
 import styles from './App.module.css'
 import { Chat } from './components/Chat/Chat'
 import { Controls } from './components/Controls/Controls'
-import { Assistant as Gemini } from './assistants/googleai'
-import { Assistant as OpenAi } from './assistants/openai'
 
 function App() {
   const selectedAi = useRef();
@@ -15,6 +17,7 @@ function App() {
   }
 
   const [messages, setMessages] = useState([WELCOME_MESSAGE])
+  const [isLoading, setIsLoading] = useState(false)
 
   function addMessage(message) {
     setMessages((prevMessages) => [...prevMessages, message])
@@ -22,28 +25,31 @@ function App() {
 
   async function handleGeminiContentSend(content) {
     addMessage({ content: content, role: 'user' })
+    setIsLoading(true)
     try {
       const result = await geminiAssistant.chat(content)
       addMessage({ content: result, role: 'assistant' });
     } catch (error) {
       console.error(error)
       addMessage({ content: "Sorry I couldn't process your request. please try again.", role: 'system' });
-    }
+    } finally { setIsLoading(false) }
   }
 
   async function handleOpenAiContentSend(content) {
     addMessage({ content: content, role: 'user' })
+    setIsLoading(true)
     try {
       const result = await openAiAssistant.chat(content, messages)
       addMessage({ content: result, role: 'assistant' });
     } catch (error) {
       console.error(error)
       addMessage({ content: "Sorry I couldn't process your request. please try again.", role: 'system' });
-    }
+    } finally { setIsLoading(false) }
   }
 
   return (
     <div className={styles.App}>
+      {isLoading && <Loader />}
       <header className={styles.Header}>
         <img className={styles.Logo} src="/chat-bot.png" />
         <h2 className={styles.Title}>AI Chatbot
