@@ -11,12 +11,8 @@ function App() {
   const selectedAi = useRef();
   const geminiAssistant = new Gemini()
   const openAiAssistant = new OpenAi()
-  const WELCOME_MESSAGE = {
-    role: 'assistant',
-    content: 'Hello! How can I assist you right now?',
-  }
 
-  const [messages, setMessages] = useState([WELCOME_MESSAGE])
+  const [messages, setMessages] = useState([])
   const [isLoading, setIsLoading] = useState(false)
 
   function addMessage(message) {
@@ -63,7 +59,7 @@ function App() {
       <div className={styles.ChatContainer}>
         <Chat messages={messages} />
       </div>
-      <Controls onSend={(content) => {
+      <Controls isDisabled={isLoading} onSend={(content) => {
         const ai = selectedAi.current.value
         if (ai === 'Gemini') {
           handleGeminiContentSend(content)

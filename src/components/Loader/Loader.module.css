@@ -7,7 +7,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: #f3f3f3;
+    background: light-dark(#f3f3f3, #171717);
     opacity: 0.6;
 }
 
@@ -31,6 +31,12 @@
 
 .Loader:after {
     --s: -1;
+}
+
+@media (prefers-color-scheme: dark) {
+    .LoaderWrapper {
+        opacity: 0.85;
+    }
 }
 
 @keyframes l8-0 {
