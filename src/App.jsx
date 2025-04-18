@@ -9,12 +9,19 @@ import { Controls } from './components/Controls/Controls'
 
 function App() {
   const selectedAi = useRef(null);
-  const geminiAssistant = new Gemini()
-  const openAiAssistant = new OpenAi()
+  const geminiAssistant = new Gemini();
+  const openAiAssistant = new OpenAi();
 
-  const [messages, setMessages] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
-  const [colorScheme, setColorScheme] = useState('Dark')
+  const [messages, setMessages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isStreaming, setIsStreaming] = useState(false);
+
+  function updateLastMessageContent(content) {
+    setMessages((prevMessages) => prevMessages.map((newMessage, index) =>
+      index === prevMessages.length - 1 ? { ...newMessage, content: `${newMessage.content}${content}` }
+        : newMessage
+    ))
+  }
 
   function addMessage(message) {
     setMessages((prevMessages) => [...prevMessages, message])
@@ -24,12 +31,26 @@ function App() {
     addMessage({ content: content, role: 'user' })
     setIsLoading(true)
     try {
-      const result = await geminiAssistant.chat(content)
-      addMessage({ content: result, role: 'assistant' });
+      const result = geminiAssistant.chatStream(content)
+      let isFirstChunk = false;
+
+      for await (const chunk of result) {
+        if (!isFirstChunk) {
+          isFirstChunk = true;
+          addMessage({ content: result, role: 'assistant' });
+          setIsLoading(false)
+          setIsStreaming(true)
+        }
+        updateLastMessageContent(chunk)
+      }
+
     } catch (error) {
       console.error(error)
       addMessage({ content: "Sorry I couldn't process your request. please try again.", role: 'system' });
-    } finally { setIsLoading(false) }
+    } finally {
+      setIsLoading(false);
+      setIsStreaming(false);
+    }
   }
 
   async function handleOpenAiContentSend(content) {
