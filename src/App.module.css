@@ -27,3 +27,9 @@
     border-radius: 16px;
     overflow-y: auto;
 }
+
+.AiSelection {
+    cursor: pointer;
+    border-radius: 10px;
+    border: solid rgb(62, 195, 240)
+}
