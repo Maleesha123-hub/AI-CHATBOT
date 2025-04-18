@@ -1,6 +1,7 @@
 
 import { Assistant as Gemini } from './assistants/googleai'
 import { Assistant as OpenAi } from './assistants/openai'
+import { Assistant as DeepSeekAi } from './assistants/deepSeekai'
 import { Loader } from './components/Loader/Loader'
 import { useRef, useState } from 'react'
 import styles from './App.module.css'
@@ -11,6 +12,7 @@ function App() {
   const selectedAi = useRef(null);
   const geminiAssistant = new Gemini();
   const openAiAssistant = new OpenAi();
+  const deepSeekAiAssistant = new DeepSeekAi();
 
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -57,11 +59,24 @@ function App() {
     addMessage({ content: content, role: 'user' })
     setIsLoading(true)
     try {
-      const result = await openAiAssistant.chat(content, messages)
+      const result = openAiAssistant.chatStream(content, messages)
       addMessage({ content: result, role: 'assistant' });
     } catch (error) {
       console.error(error)
       addMessage({ content: "Sorry I couldn't process your request. please try again.", role: 'system' });
+    } finally { setIsLoading(false) }
+  }
+
+  async function handleDeepSeekAiContentSend(content) {
+    addMessage({ content: content, role: 'user' })
+    setIsLoading(true)
+    try {
+      const result = await deepSeekAiAssistant.chat(content, messages)
+      addMessage({ content: result, role: 'assistant' });
+    } catch (error) {
+      console.error(error)
+      addMessage({ content: "Sorry I couldn't process your request. please try again.", role: 'system' });
+      setIsLoading(false);
     } finally { setIsLoading(false) }
   }
 
@@ -85,7 +100,7 @@ function App() {
           <select className={styles.AiSelection} ref={selectedAi}>
             <option value="Gemini">Gemini</option>
             <option value="OpenAI">OpenAI</option>
-            <option value="D-seek">Deep-seek</option>
+            <option value="DeepSeek">Deep-seek</option>
           </select>
 
           <label>
@@ -119,6 +134,8 @@ function App() {
           handleGeminiContentSend(content)
         } else if (ai === 'OpenAI') {
           handleOpenAiContentSend(content)
+        } else if (ai === 'DeepSeek') {
+          handleDeepSeekAiContentSend(content)
         }
       }} />
     </div>
