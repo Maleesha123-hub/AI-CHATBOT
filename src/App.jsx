@@ -8,12 +8,13 @@ import { Chat } from './components/Chat/Chat'
 import { Controls } from './components/Controls/Controls'
 
 function App() {
-  const selectedAi = useRef();
+  const selectedAi = useRef(null);
   const geminiAssistant = new Gemini()
   const openAiAssistant = new OpenAi()
 
   const [messages, setMessages] = useState([])
   const [isLoading, setIsLoading] = useState(false)
+  const [colorScheme, setColorScheme] = useState('Dark')
 
   function addMessage(message) {
     setMessages((prevMessages) => [...prevMessages, message])
@@ -43,6 +44,15 @@ function App() {
     } finally { setIsLoading(false) }
   }
 
+  function handleColorScheme(event) {
+    const scheme = event.target.value;
+    if (scheme === 'Dark') {
+      document.documentElement.style.setProperty('color-scheme', 'Dark');
+    } else {
+      document.documentElement.style.setProperty('color-scheme', 'light');
+    }
+  }
+
   return (
     <div className={styles.App}>
       {isLoading && <Loader />}
@@ -50,11 +60,34 @@ function App() {
         <img className={styles.Logo} src="/chat-bot.png" />
         <h2 className={styles.Title}>AI Chatbot
         </h2>
-        <select className={styles.AiSelection} ref={selectedAi}>
-          <option value="Gemini">Gemini</option>
-          <option value="OpenAI">OpenAI</option>
-          <option value="D-seek">Deep-seek</option>
-        </select>
+        <div className={styles.Settings}>
+          <select className={styles.AiSelection} ref={selectedAi}>
+            <option value="Gemini">Gemini</option>
+            <option value="OpenAI">OpenAI</option>
+            <option value="D-seek">Deep-seek</option>
+          </select>
+
+          <label>
+            <input
+              type="radio"
+              name="colorScheme"
+              value="Light"
+              onClick={(event) => handleColorScheme(event)}
+            />
+            Light
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="colorScheme"
+              value="Dark"
+              onClick={(event) => handleColorScheme(event)}
+              defaultChecked
+            />
+            Dark
+          </label>
+        </div>
+
       </header>
       <div className={styles.ChatContainer}>
         <Chat messages={messages} />
